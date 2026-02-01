@@ -56,6 +56,38 @@ exports.getCropDetails = async (req, res) => {
     });
   }
 };
+
+exports.updateCrop = async (req, res) => {
+  try {
+    if (!req.isLoggedIn || !req.user) {
+      return res.status(401).json({ error: 'Unauthorized – please log in' });
+    }
+
+    const cropId = req.params.cropId;
+    if (!mongoose.Types.ObjectId.isValid(cropId)) {
+      return res.status(400).json({ error: 'Invalid crop ID' });
+    }
+    const updateData = req.body;
+
+    // Update the crop document
+    const updatedCrop = await Crop.findByIdAndUpdate(cropId, updateData);
+
+    if (!updatedCrop) {
+      return res.status(404).json({ error: 'Crop not found' });
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'Crop updated successfully',
+      crop: updatedCrop,
+    });
+  } catch (error) {
+    console.error('Error in updateCrop:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to update crop',
+    });
+  }
+};
 exports.getAllRequests = async (req, res) => {
   try {
       // 3. Fetch all requests made by this user

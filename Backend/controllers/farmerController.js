@@ -354,3 +354,26 @@ console.log("jkdnkjsbdkjs");
     });
   }
 };
+exports.getProfile = async (req, res) => {
+  try {
+    // 1. Authentication check
+    if (!req.isLoggedIn || !req.user) {
+      return res.status(401).json({ error: 'Unauthorized – please log in' });
+    }
+    const farmerId = req.user._id;
+
+    // 2. Fetch farmer profile
+    const farmer = await Farmer.findById(farmerId).select('-password').populate('listedCrops');
+    if (!farmer) {
+      return res.status(404).json({ error: 'Farmer not found' });
+    }
+    // 3. Return profile data
+    return res.status(200).json({
+      success: true,
+      farmerProfile: farmer
+    });
+  } catch (error) {
+    console.error('Error in getProfile:', error);
+    return res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+};

@@ -1,5 +1,7 @@
 const Request = require('../models/Request');
 const Crop = require('../models/Crop');
+const Firm = require('../models/Firm');
+const Farmer = require('../models/Farmer');
 const FirmRequest=require('../models/FirmRequest');
 const mongoose = require('mongoose')
 
@@ -91,6 +93,52 @@ exports.getMyRequests = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Failed to fetch your crop requests',
+    });
+  }
+};
+
+exports.getProfile = async (req, res) => {
+  try {
+    if (!req.isLoggedIn || !req.user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Unauthorized – please log in to view your profile'
+      });
+    }
+    const userId = req.user._id;
+    // Fetch user profile details
+    const firm = await Firm.findById(userId).select('-password'); // Exclude password
+    if (!firm) {
+      return res.status(404).json({
+        success: false,
+        error: 'Firm not found'
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      firmProfile: firm
+    });
+  } catch (error) {
+    console.error('Error in getProfile:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch firm profile',
+    });
+  }
+};
+
+exports.getFarmers = async (req, res) => {
+  try {
+    const farmers = await Farmer.find().select('-password').populate('listedCrops');
+    return res.status(200).json({
+      success: true,
+      farmers
+    });
+  } catch (error) {
+    console.error('Error in getFarmers:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch farmers list',
     });
   }
 };

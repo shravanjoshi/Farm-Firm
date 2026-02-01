@@ -2,8 +2,6 @@ import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
 import 'react-toastify/dist/ReactToastify.css';
 import Layout from "./components/Layout";
 import Home from "./components/Home";
-import FarmerDashboard from "./components/FarmerDashboard";
-import FirmDashboard from "./components/FirmDashboard";
 import LoginPage from "./components/LoginPage";
 import Signup from "./components/Signup";
 import ErrorPage from "./components/ErrorPage";
@@ -15,32 +13,16 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CropDetails from "./components/CropDetails";
 import MyRequests from "./components/MyRequests";
 import FarmerRequests from "./components/FarmerRequests"
+import Profile from "./components/Profile";
 import AllRequests from "./components/AllRequests";
 function App() {
+
   const router = createBrowserRouter([
     {
       path: "/",
       element: <Layout />,
       children: [
         { index: true, element: <Home/> }, // Public route
-        {
-          path: "/farmer-dashboard",
-          element: (
-            <ProtectedRoute>
-              <FarmerDashboard />
-              </ProtectedRoute>
-            
-          ),
-        },
-    
-           {
-          path: "/firm-dashboard",
-          element: (
-            <ProtectedRoute>
-              <FirmDashboard />
-            </ProtectedRoute>
-          ),
-        },
 
         {
           path:"/crops",
@@ -86,6 +68,14 @@ function App() {
           element:(
             <ProtectedRoute>
             <FarmerRequests/>
+            </ProtectedRoute>
+          )
+        },
+  {
+          path:"/profile",
+          element:(
+            <ProtectedRoute>
+            <Profile />
             </ProtectedRoute>
           )
         },
