@@ -14,7 +14,7 @@ import CropDetails from "./components/CropDetails";
 import MyRequests from "./components/MyRequests";
 import FarmerRequests from "./components/FarmerRequests"
 import Profile from "./components/Profile";
-
+import AllRequests from "./components/AllRequests";
 function App() {
 
   const router = createBrowserRouter([
@@ -77,6 +77,12 @@ function App() {
             <ProtectedRoute>
             <Profile />
             </ProtectedRoute>
+          )
+        },
+        {
+          path:"/allrequests",
+          element:(
+              <AllRequests/>
           )
         },
 

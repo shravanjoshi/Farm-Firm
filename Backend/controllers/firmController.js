@@ -2,6 +2,7 @@ const Request = require('../models/Request');
 const Crop = require('../models/Crop');
 const Firm = require('../models/Firm');
 const Farmer = require('../models/Farmer');
+const FirmRequest=require('../models/FirmRequest');
 const mongoose = require('mongoose')
 
 // POST /api/crop-request/:cropId
@@ -79,7 +80,7 @@ exports.getMyRequests = async (req, res) => {
       .populate({
         path: 'cropId farmerId'
       })
-     console.log(requests);
+     console.log("jkbkjhb",requests);
     // 4. Format response
     return res.status(200).json({
       success: true,
@@ -138,6 +139,58 @@ exports.getFarmers = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Failed to fetch farmers list',
+    });
+  }
+};
+exports.PostAddRequest = async (req, res) => {
+  try {
+       const userId = req.user._id; // from auth middleware
+       
+    // 2. Validate user ID format
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid user ID'
+      });
+    }
+
+    // Validate required fields (from frontend form)
+    const { cropName, deadline, requirement } = req.body;
+    if (!deadline || !requirement || !cropName) {
+      return res.status(400).json({ error: 'Required fields missing' });
+    }
+
+    // Optional: You can add extra validation
+    if (new Date(deadline) < new Date()) {
+      return res.status(400).json({ error: 'Deadline date must be present date or after' });
+    }
+
+
+    // Create new request
+    const newRequest = new FirmRequest({
+cropname:cropName,
+       deadline,
+      requirement,
+      firmId:userId
+          });
+
+    await newRequest.save();
+ const request = await FirmRequest.findById({_id: newRequest._id})
+      .populate({ 
+        path: 'firmId',
+      });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Crop request submitted successfully',
+      request: request
+    });
+
+  } catch (error) {
+    console.error('Error creating crop request:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to submit crop request'
     });
   }
 };

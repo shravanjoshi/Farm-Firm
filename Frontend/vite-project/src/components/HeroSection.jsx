@@ -47,10 +47,10 @@ const HeroSection = () => {
           <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
           {!isLoggedIn && 
               <Link
-              to="/login-page"
+              to="/signup"
               className="group relative inline-flex items-center justify-center gap-3 rounded-xl bg-emerald-600 px-8 py-4 text-base font-semibold text-white shadow-lg shadow-emerald-900/30 transition-all hover:bg-emerald-700 hover:shadow-emerald-900/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-emerald-950"
             >
-              <span>Login</span>
+              <span>Get Started</span>
               <span className="transition-transform group-hover:translate-x-1">→</span>
             </Link>
 }

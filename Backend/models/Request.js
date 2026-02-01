@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const cropRequestSchema = new mongoose.Schema({
-  
    deadline: {
     type: Date,
     required: true

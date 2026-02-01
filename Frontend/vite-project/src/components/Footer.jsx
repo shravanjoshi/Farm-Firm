@@ -57,7 +57,7 @@ const Footer = () => {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
-                  to="/register?role=farmer"
+                  to="/signup?role=farmer"
                   className="text-emerald-100/80 hover:text-white transition-colors duration-200"
                 >
                   Register as Farmer
@@ -65,7 +65,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/register?role=firm"
+                  to="/signup?role=firm"
                   className="text-emerald-100/80 hover:text-white transition-colors duration-200"
                 >
                   Register as Firm
@@ -73,7 +73,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/login"
+                  to="/login-page"
                   className="text-emerald-100/80 hover:text-white transition-colors duration-200"
                 >
                   Login

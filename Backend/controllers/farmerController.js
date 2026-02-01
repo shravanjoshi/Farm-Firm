@@ -4,7 +4,7 @@ const fs = require('fs');
 const crop = require('../models/Crop');     // your Crop model
 const Farmer = require('../models/Farmer');     // your Farmer model
 const Request = require('../models/Request');     // your Farmer model
-
+const FirmRequest=require('../models/FirmRequest');
 // ────────────────────────────────────────────────
 //            Multer Configuration (Local Storage)
 // ────────────────────────────────────────────────
@@ -137,7 +137,7 @@ exports.PostAddCrop = [
       // 7. Success response
       return res.status(201).json({
         message: 'Crop listed successfully',
-        crop: savedCrop
+        crop: savedCrop,
       });
 
     } catch (error) {
@@ -220,8 +220,7 @@ exports.getRequestedCrops = async (req, res) => {
       success: true,
       requests:requests
     });
-
-  } catch (error) {
+      } catch (error) {
     console.error('Error in getRequestedCrops:', error);
     return res.status(500).json({
       success: false,
@@ -256,33 +255,9 @@ exports.acceptCropRequest = async (req, res) => {
       });
     }
 
-    // Optional: check if farmer still has enough quantity
-    // if (request.cropId.quantity < request.requirement) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     error: 'Insufficient crop quantity available'
-    //   });
-    // }
-
-    // Update request status
+     // Update request status
     request.status = 'Accepted';
     await request.save();
-
-    // Optional business logic you may want to add:
-    // 1. Reduce available quantity in Crop model
-    // if (request.cropId) {
-    //   request.cropId.quantity -= request.requirement;
-    //   await request.cropId.save();
-    // }
-
-    // 2. Create notification for the firm
-    // await createNotification({
-    //   user: request.firmId._id,
-    //   type: 'request_accepted',
-    //   message: `Your request for ${request.cropId.cropname} was accepted by ${request.farmerId.name}`,
-    //   relatedRequest: request._id
-    // });
-
     return res.status(200).json({
       success: true,
       message: 'Crop request accepted successfully',
@@ -327,15 +302,6 @@ exports.rejectCropRequest = async (req, res) => {
     // Update status
     request.status = 'Rejected';
     await request.save();
-
-    // Optional: notify firm
-    // await createNotification({
-    //   user: request.firmId._id,
-    //   type: 'request_rejected',
-    //   message: `Your request for ${request.cropId?.cropname || 'crops'} was rejected`,
-    //   relatedRequest: request._id
-    // });
-
     return res.status(200).json({
       success: true,
       message: 'Crop request rejected successfully',
@@ -348,7 +314,46 @@ exports.rejectCropRequest = async (req, res) => {
     });
   }
 };
+exports.acceptFirmRequest = async (req, res) => {
+  try {
+    if (!req.isLoggedIn || !req.user) {
+      return res.status(401).json({ error: 'Unauthorized – please log in' });
+    }
+    const requestId = req.params.requestId;
+    const farmerId = req.user._id; // assuming auth middleware sets req.user
 
+    const request = await FirmRequest.findById(requestId);
+console.log("jkdnkjsbdkjs");
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        error: 'Crop request not found'
+      });
+    }
+
+
+    if (request.status !== 'Pending') {
+      return res.status(400).json({
+        success: false,
+        error: `Request is already ${request.status}`
+      });
+    }
+
+     // Update request status
+    request.status = 'Accepted';
+    await request.save();
+    return res.status(200).json({
+      success: true,
+      message: 'Crop request accepted successfully',
+    });
+  } catch (error) {
+    console.error('Error accepting crop request:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Server error while accepting request'
+    });
+  }
+};
 exports.getProfile = async (req, res) => {
   try {
     // 1. Authentication check

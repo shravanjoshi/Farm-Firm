@@ -15,6 +15,7 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Crops", path: "/crops" },
+    {name:"Requests",path:"/allrequests"}
   ];
 
   const farmerLinks = [
@@ -124,7 +125,7 @@ const Navbar = () => {
                   to="/signup"
                   className="px-5 py-2.5 text-sm font-medium bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors shadow-sm"
                 >
-                  Get Started
+                  Register
                 </Link>
               </>
             ) : (
