@@ -12,6 +12,7 @@ const PORT= process.env.PORT || 4003;
 const farmerrouter=require('./routes/farmerRouter');
 const firmrouter=require('./routes/firmRouter');
 const croprouter=require('./routes/cropRouter');
+const adminrouter = require('./routes/adminrouter');
 
 
 require('dotenv').config();
@@ -77,7 +78,7 @@ app.use((req, res, next) => {
 // 🌍 Public routes
 app.use(croprouter);
 app.use(authrouter);
-
+app.use(adminrouter)
 // 🔒 Protected routes
 app.use((req, res, next) => {
   if (req.isLoggedIn) return next();

@@ -40,12 +40,6 @@ const FirmProfilePage = () => {
     const [activeTab, setActiveTab] = useState("dashboard");
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Market prices data
-    const marketPrices = [
-        { crop: "Wheat", location: "Mumbai APMC", price: 28, unit: "kg", trend: "up", change: 7.7 },
-        { crop: "Rice (Basmati)", location: "Delhi Mandi", price: 85, unit: "kg", trend: "down", change: -3.4 },
-        { crop: "Onions", location: "Nashik Mandi", price: 22, unit: "kg", trend: "up", change: 22.2 },
-    ];
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -385,97 +379,7 @@ const FirmProfilePage = () => {
                             </Card>
                         </div>
 
-                        {/* Market Prices Sidebar */}
-                        <div className="lg:col-span-1">
-                            <Card>
-                                <div className="p-6 border-b border-border">
-                                    <h2 className="text-xl font-bold text-foreground">Market Prices</h2>
-                                </div>
-                                <CardContent className="p-6">
-                                    <div className="space-y-4">
-                                        {marketPrices.map((item, index) => (
-                                            <div
-                                                key={index}
-                                                className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors"
-                                            >
-                                                <div>
-                                                    <p className="font-semibold text-foreground">{item.crop}</p>
-                                                    <p className="text-xs text-muted-foreground">{item.location}</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="font-bold text-foreground">
-                                                        ₹{item.price}/{item.unit}
-                                                    </p>
-                                                    <div className="flex items-center justify-end gap-1">
-                                                        {item.trend === "up" ? (
-                                                            <>
-                                                                <TrendingUp className="h-3 w-3 text-green-600" />
-                                                                <span className="text-xs text-green-600">
-                                                                    +{item.change}%
-                                                                </span>
-                                                            </>
-                                                        ) : item.trend === "down" ? (
-                                                            <>
-                                                                <TrendingDown className="h-3 w-3 text-red-600" />
-                                                                <span className="text-xs text-red-600">{item.change}%</span>
-                                                            </>
-                                                        ) : (
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {item.change}%
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Recent Transactions */}
-                            <Card className="mt-6">
-                                <div className="p-6 border-b border-border">
-                                    <h2 className="text-xl font-bold text-foreground">Recent Transactions</h2>
-                                </div>
-                                <CardContent className="p-6">
-                                    {myRequests.length === 0 ? (
-                                        <div className="text-center py-8">
-                                            <Clock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                                            <p className="text-sm text-muted-foreground">No recent transactions</p>
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {myRequests.slice(0, 3).map((req, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30"
-                                                >
-                                                    <div>
-                                                        <p className="font-medium text-foreground text-sm">
-                                                            {req.cropId?.cropname || "Crop"}
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            {req.quantity} {req.cropId?.unit}
-                                                        </p>
-                                                    </div>
-                                                    <Badge
-                                                        className={
-                                                            req.status === "accepted" || req.status === "Accepted"
-                                                                ? "bg-green-500/10 text-green-600 border-green-500/30"
-                                                                : req.status === "pending" || req.status === "Pending"
-                                                                    ? "bg-yellow-500/10 text-yellow-600 border-yellow-500/30"
-                                                                    : "bg-red-500/10 text-red-600 border-red-500/30"
-                                                        }
-                                                    >
-                                                        {req.status}
-                                                    </Badge>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </div>
+                     
                     </div>
                 </div>
             </main>

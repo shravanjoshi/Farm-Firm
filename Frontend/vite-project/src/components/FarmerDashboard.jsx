@@ -417,53 +417,7 @@ const FarmerDashboard = () => {
             </Card>
           </div>
 
-          {/* Market Prices */}
-          <div className="lg:col-span-1">
-            <Card>
-              <div className="p-6 border-b border-border">
-                <h2 className="text-xl font-bold text-foreground">Market Prices</h2>
-              </div>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {marketPrices.map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors"
-                    >
-                      <div>
-                        <p className="font-semibold text-foreground">{item.crop}</p>
-                          
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-foreground">
-                          ₹{item.price}/{item.unit}
-                        </p>
-                        <div className="flex items-center justify-end gap-1">
-                          {item.trend === "up" ? (
-                            <>
-                              <TrendingUp className="h-3 w-3 text-green-600" />
-                              <span className="text-xs text-green-600">
-                                +{item.change}%
-                              </span>
-                            </>
-                          ) : item.trend === "down" ? (
-                            <>
-                              <TrendingDown className="h-3 w-3 text-red-600" />
-                              <span className="text-xs text-red-600">{item.change}%</span>
-                            </>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">
-                              {item.change}%
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+  
         </div>
       </div>
 

@@ -29,7 +29,7 @@ const CTASection = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center">
               <Link
-                to="/register"
+                to="/signup"
                 className="group inline-flex items-center justify-center gap-3 rounded-xl bg-emerald-600 px-8 py-4 text-base sm:text-lg font-semibold text-white shadow-lg shadow-emerald-950/30 transition-all hover:bg-emerald-700 hover:shadow-emerald-950/40 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-emerald-950"
               >
                 Get Started Free

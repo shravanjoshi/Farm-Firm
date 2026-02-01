@@ -4,57 +4,76 @@ const Firm = require('../models/Firm');
 const Farmer = require('../models/Farmer');
 const FirmRequest=require('../models/FirmRequest');
 const mongoose = require('mongoose')
-
+const sendSMS = require('../servicesms');
 // POST /api/crop-request/:cropId
 exports.PostRequestCrop = async (req, res) => {
   try {
     const cropId = req.params.cropId;
-    const userId = req.user._id; // from auth middleware
+    const userId = req.user._id; // firm (from auth middleware)
 
     // Validate crop exists
     const crop = await Crop.findById(cropId);
     if (!crop) {
-      return res.status(404).json({ error: 'Crop not found' });
+      return res.status(404).json({ error: "Crop not found" });
     }
 
-    // Validate required fields (from frontend form)
-    const {  deadline, requirement } = req.body;
+    const { deadline, requirement } = req.body;
 
     if (!deadline || !requirement) {
-      return res.status(400).json({ error: 'Required fields missing' });
+      return res.status(400).json({ error: "Required fields missing" });
     }
 
-    // Optional: You can add extra validation
     if (new Date(deadline) < new Date()) {
-      return res.status(400).json({ error: 'Deadline date must be present date or after' });
+      return res
+        .status(400)
+        .json({ error: "Deadline date must be present date or after" });
     }
-
 
     // Create new request
     const newRequest = new Request({
-       deadline,
+      deadline,
       requirement,
       cropId,
-      farmerId: crop.userId ,// farmer
-      firmId:userId
-          });
+      farmerId: crop.userId, // farmer
+      firmId: userId
+    });
 
     await newRequest.save();
 
+    // 🔔 SEND SMS TO FARMER
+    const farmer = await Farmer.findById(crop.userId);
+
+    if (farmer && farmer.phoneNumber) {
+      const smsText = `
+New Crop Request 📩
+A firm is requesting your crop.
+Crop: ${crop.cropname}
+Requirement: ${requirement}
+Deadline: ${new Date(deadline).toDateString()}
+
+Please check the app for details.
+      `;
+
+      // Fire & forget (don’t block response)
+      sendSMS(farmer.phoneNumber, smsText).catch(err =>
+        console.error("SMS failed:", err.message)
+      );
+    }
+
     return res.status(201).json({
       success: true,
-      message: 'Crop request submitted successfully',
+      message: "Crop request submitted successfully",
       request: newRequest
     });
-
   } catch (error) {
-    console.error('Error creating crop request:', error);
+    console.error("Error creating crop request:", error);
     return res.status(500).json({
       success: false,
-      error: 'Failed to submit crop request'
+      error: "Failed to submit crop request"
     });
   }
 };
+
 exports.getMyRequests = async (req, res) => {
   try {
     // 1. Authentication check

@@ -5,6 +5,8 @@ const crop = require('../models/Crop');     // your Crop model
 const Farmer = require('../models/Farmer');     // your Farmer model
 const Request = require('../models/Request');     // your Farmer model
 const FirmRequest=require('../models/FirmRequest');
+const Firm = require('../models/Firm');     // your Firm model
+const sendSMS = require('../servicesms'); // Twilio SMS service
 // ────────────────────────────────────────────────
 //            Multer Configuration (Local Storage)
 // ────────────────────────────────────────────────
@@ -231,68 +233,19 @@ exports.getRequestedCrops = async (req, res) => {
 
 exports.acceptCropRequest = async (req, res) => {
   try {
-    // 1. Authentication check
     if (!req.isLoggedIn || !req.user) {
-      return res.status(401).json({ error: 'Unauthorized – please log in' });
-    }
-    const requestId = req.params.requestId;
-    const farmerId = req.user._id; // assuming auth middleware sets req.user
-
-    const request = await Request.findById(requestId);
-
-    if (!request) {
-      return res.status(404).json({
-        success: false,
-        error: 'Crop request not found'
-      });
+      return res.status(401).json({ error: "Unauthorized – please log in" });
     }
 
-
-    if (request.status !== 'Pending') {
-      return res.status(400).json({
-        success: false,
-        error: `Request is already ${request.status}`
-      });
-    }
-
-     // Update request status
-    request.status = 'Accepted';
-    await request.save();
-    return res.status(200).json({
-      success: true,
-      message: 'Crop request accepted successfully',
-    });
-  } catch (error) {
-    console.error('Error accepting crop request:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Server error while accepting request'
-    });
-  }
-};
-
-
-exports.rejectCropRequest = async (req, res) => {
-  try {
-    // 1. Authentication check
-    if (!req.isLoggedIn || !req.user) {
-      return res.status(401).json({ error: 'Unauthorized – please log in' });
-    }
     const requestId = req.params.requestId;
     const farmerId = req.user._id;
 
-    const request = await Request.findById(requestId)
-
+    const request = await Request.findById(requestId).populate('cropId');
     if (!request) {
-      return res.status(404).json({
-        success: false,
-        error: 'Crop request not found'
-      });
+      return res.status(404).json({ success: false, error: "Crop request not found" });
     }
 
-    
-
-    if (request.status !== 'Pending') {
+    if (request.status !== "Pending") {
       return res.status(400).json({
         success: false,
         error: `Request is already ${request.status}`
@@ -300,20 +253,97 @@ exports.rejectCropRequest = async (req, res) => {
     }
 
     // Update status
-    request.status = 'Rejected';
+    request.status = "Accepted";
     await request.save();
+
+    // 🔔 SEND SMS TO FIRM
+    const firm = await Firm.findById(request.firmId);
+
+    if (firm && firm.phoneNumber) {
+      const smsText = `
+✅ Crop Request Accepted
+
+Good news! The farmer has ACCEPTED your crop request.
+Crop: ${request.cropId.cropname}
+Please check the app for next steps.
+      `;
+
+      sendSMS(firm.phoneNumber, smsText).catch(err =>
+        console.error("SMS failed:", err.message)
+      );
+    }
+
     return res.status(200).json({
       success: true,
-      message: 'Crop request rejected successfully',
+      message: "Crop request accepted successfully"
     });
   } catch (error) {
-    console.error('Error rejecting crop request:', error);
+    console.error("Error accepting crop request:", error);
     return res.status(500).json({
       success: false,
-      error: 'Server error while rejecting request'
+      error: "Server error while accepting request"
     });
   }
 };
+exports.rejectCropRequest = async (req, res) => {
+  try {
+    if (!req.isLoggedIn || !req.user) {
+      return res.status(401).json({ error: "Unauthorized – please log in" });
+    }
+
+    const requestId = req.params.requestId;
+    const farmerId = req.user._id;
+
+    const request = await Request.findById(requestId).populate('cropId');
+    if (!request) {
+      return res.status(404).json({ success: false, error: "Crop request not found" });
+    }
+
+    if (request.status !== "Pending") {
+      return res.status(400).json({
+        success: false,
+        error: `Request is already ${request.status}`
+      });
+    }
+
+    // Update status
+    request.status = "Rejected";
+    await request.save();
+
+    // 🔔 SEND SMS TO FIRM
+    const firm = await Firm.findById(request.firmId);
+
+    if (firm && firm.phoneNumber) {
+      const smsText = `
+❌ Crop Request Rejected
+The farmer has REJECTED your crop request.
+Crop: ${request.cropId.cropname}
+You may submit another request via the app.
+      `;
+
+      sendSMS(firm.phoneNumber, smsText).catch(err =>
+        console.error("SMS failed:", err.message)
+      );
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Crop request rejected successfully"
+    });
+  } catch (error) {
+    console.error("Error rejecting crop request:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Server error while rejecting request"
+    });
+  }
+};
+
+
+
+
+
+
 exports.acceptFirmRequest = async (req, res) => {
   try {
     if (!req.isLoggedIn || !req.user) {

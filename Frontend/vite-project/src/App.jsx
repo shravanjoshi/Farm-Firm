@@ -15,6 +15,7 @@ import MyRequests from "./components/MyRequests";
 import FarmerRequests from "./components/FarmerRequests"
 import Profile from "./components/Profile";
 import AllRequests from "./components/AllRequests";
+import Admin from "./components/Admin";
 function App() {
 
   const router = createBrowserRouter([
@@ -85,7 +86,12 @@ function App() {
               <AllRequests/>
           )
         },
-
+      {
+        path:"/admin",
+        element:(
+          <Admin></Admin>
+        )
+      },
 
         { path: "/signup", element: <Signup /> }, // Public route
         { path: "/login-page", element: <LoginPage /> }, // Public route
