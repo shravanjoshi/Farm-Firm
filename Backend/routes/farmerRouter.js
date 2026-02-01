@@ -6,5 +6,5 @@ farmerrouter.get('/api/listed-crops',farmerController.getMyListedCrops);
 farmerrouter.get('/api/requested-crops',farmerController.getRequestedCrops);
 farmerrouter.patch('/api/accept/:requestId',farmerController.acceptCropRequest);
 farmerrouter.patch('/api/reject/:requestId',farmerController.rejectCropRequest);
-
+farmerrouter.patch('/api/requests/accept/:requestId',farmerController.acceptFirmRequest);
 module.exports = farmerrouter;

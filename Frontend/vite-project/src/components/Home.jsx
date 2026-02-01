@@ -8,14 +8,12 @@ import Footer from './Footer';
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <Navbar />
       <main>
         <HeroSection />
         <FeatureSection />
         <HowItWorksSection />
         <CTASection />
       </main>
-      <Footer />
     </div>
   );
 };

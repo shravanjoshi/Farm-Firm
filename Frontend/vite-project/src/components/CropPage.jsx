@@ -50,9 +50,12 @@ console.log(data.crops);
           const normalizedCrops = data.crops.map((crop) => ({
             id: crop._id,
             name: crop.cropname || "Unnamed Crop",
-            farmer: crop.farmerName || "Unknown Farmer", // ← adjust based on your populated data
+       farmer: [crop.userId?.FirstName, crop.userId?.LastName]
+  .filter(Boolean)
+  .join(" ") || "Unknown Farmer"
+,
             farmerRating: crop.farmerRating || 4.0,       // fallback if not present
-            location: crop.location || "Unknown Location",
+location: `${crop.userId?.city || "Unknown City"}, ${crop.userId?.state || "Unknown State"}`,
             minquantity: crop.minquantity || 0,
             unit: crop.unit || "kg",
             price: crop.price || 0,
@@ -271,7 +274,7 @@ console.log(data.crops);
                         <p>minquantity:-{crop.minquantity}</p>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Package className="w-3 h-3" />
-                        {crop.totalavailable} {crop.unit} available
+                             {crop.available} {crop.unit} available
                       </div>
                     </div>
 

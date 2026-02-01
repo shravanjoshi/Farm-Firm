@@ -1,15 +1,16 @@
 const mongoose = require('mongoose');
 const Crop = require('../models/Crop');     // your Crop model
 const Farmer = require('../models/Farmer'); // assuming logged-in user is a Farmer
+const FirmRequest=require('../models/FirmRequest')
 exports.getCrops = async (req, res) => {
   try {
-    const crops = await Crop.find();
+    const crops = await Crop.find().populate
+    ({ path: 'userId'});
     console.log(crops);
     return res.status(200).json({
       success: true,
       crops,              // all available crops
- 
-    
+   
     });
 
   } catch (error) {
@@ -52,6 +53,29 @@ exports.getCropDetails = async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Failed to fetch crop details',
+    });
+  }
+};
+exports.getAllRequests = async (req, res) => {
+  try {
+      // 3. Fetch all requests made by this user
+    const requests = await FirmRequest.find()
+      .populate({
+        path: 'firmId'
+      })
+     console.log(" njnjknj",requests);
+    // 4. Format response
+    return res.status(200).json({
+      success: true,
+       requests:requests
+    });
+
+  } catch (error) {
+    console.error('Error in getAllRequests:', error);
+
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch your  all requests',
     });
   }
 };

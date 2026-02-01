@@ -15,7 +15,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CropDetails from "./components/CropDetails";
 import MyRequests from "./components/MyRequests";
 import FarmerRequests from "./components/FarmerRequests"
-
+import AllRequests from "./components/AllRequests";
 function App() {
   const router = createBrowserRouter([
     {
@@ -87,6 +87,12 @@ function App() {
             <ProtectedRoute>
             <FarmerRequests/>
             </ProtectedRoute>
+          )
+        },
+        {
+          path:"/allrequests",
+          element:(
+              <AllRequests/>
           )
         },
 
