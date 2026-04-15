@@ -8,12 +8,13 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const MONGODB_URL = 'mongodb://127.0.0.1:27017/farmproject';
 const authrouter = require('./routes/authrouter');
-const PORT= process.env.PORT || 4003;
-const farmerrouter=require('./routes/farmerRouter');
-const firmrouter=require('./routes/firmRouter');
-const croprouter=require('./routes/cropRouter');
+const PORT = process.env.PORT || 4003;
+const farmerrouter = require('./routes/farmerRouter');
+const firmrouter = require('./routes/firmRouter');
+const croprouter = require('./routes/cropRouter');
 const adminrouter = require('./routes/adminrouter');
 const friendrouter = require('./routes/friendRouter');
+const quotationrouter = require('./routes/quotationRouter');
 
 require('dotenv').config();
 
@@ -23,7 +24,7 @@ const FRONTEND_URL = 'http://localhost:5173';
 // 🔐 CORS CONFIG
 const allowedOrigins = [
   'http://localhost:5173',
- ];
+];
 
 app.use(
   cors({
@@ -81,6 +82,7 @@ app.use(friendrouter);
 app.use(adminrouter)
 app.use(farmerrouter);
 app.use(firmrouter);
+app.use(quotationrouter);
 
 // ❌ 404
 //app.use(errors.error404);

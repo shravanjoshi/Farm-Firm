@@ -17,6 +17,8 @@ import Profile from "./components/Profile";
 import AllRequests from "./components/AllRequests";
 import Admin from "./components/Admin";
 import FriendProfile from "./components/FriendProfile";
+import QuotationsPage from "./components/QuotationsPage";
+import FarmerQuotationsPage from "./components/FarmerQuotationsPage";
 function App() {
 
   const router = createBrowserRouter([
@@ -24,83 +26,99 @@ function App() {
       path: "/",
       element: <Layout />,
       children: [
-        { index: true, element: <Home/> }, // Public route
+        { index: true, element: <Home /> }, // Public route
 
         {
-          path:"/crops",
-          element:(
-            
-              <CropPage />
+          path: "/crops",
+          element: (
+
+            <CropPage />
           )
         },
         {
-          path:"/add-crop",
-          element:(
+          path: "/add-crop",
+          element: (
             <ProtectedRoute>
-          <AddCrop/>
-          </ProtectedRoute>
-        )
-        },
-         {
-          path:"/listed-crops",
-          element:(
-            <ProtectedRoute>
-          <ListedCrops/>
-            </ProtectedRoute>
-          )
-        },
-            {
-              path:"/crop-details/:cropId",
-              element:(
-                <ProtectedRoute>
-                  <CropDetails/>
-                </ProtectedRoute>
-              )
-            },
-  {
-          path:"/requests",
-          element:(
-            <ProtectedRoute>
-            <MyRequests/>
-            </ProtectedRoute>
-          )
-        },
-  {
-          path:"/requested-crops",
-          element:(
-            <ProtectedRoute>
-            <FarmerRequests/>
-            </ProtectedRoute>
-          )
-        },
-  {
-          path:"/profile",
-          element:(
-            <ProtectedRoute>
-            <Profile />
-            </ProtectedRoute>
-          )
-        },
-          {
-          path:"/profile/:id",
-          element:(
-            <ProtectedRoute>
-            <FriendProfile />
+              <AddCrop />
             </ProtectedRoute>
           )
         },
         {
-          path:"/allrequests",
-          element:(
-              <AllRequests/>
+          path: "/listed-crops",
+          element: (
+            <ProtectedRoute>
+              <ListedCrops />
+            </ProtectedRoute>
           )
         },
-      {
-        path:"/admin",
-        element:(
-          <Admin></Admin>
-        )
-      },
+        {
+          path: "/crop-details/:cropId",
+          element: (
+            <ProtectedRoute>
+              <CropDetails />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "/requests",
+          element: (
+            <ProtectedRoute>
+              <MyRequests />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "/requested-crops",
+          element: (
+            <ProtectedRoute>
+              <FarmerRequests />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "/profile",
+          element: (
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "/profile/:id",
+          element: (
+            <ProtectedRoute>
+              <FriendProfile />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "/allrequests",
+          element: (
+            <AllRequests />
+          )
+        },
+        {
+          path: "/quotations/:requestId",
+          element: (
+            <ProtectedRoute>
+              <QuotationsPage />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "/my-quotations",
+          element: (
+            <ProtectedRoute>
+              <FarmerQuotationsPage />
+            </ProtectedRoute>
+          )
+        },
+        {
+          path: "/admin",
+          element: (
+            <Admin></Admin>
+          )
+        },
 
         { path: "/signup", element: <Signup /> }, // Public route
         { path: "/login-page", element: <LoginPage /> }, // Public route

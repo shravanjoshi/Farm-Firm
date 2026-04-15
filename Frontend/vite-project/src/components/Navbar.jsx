@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "./AuthContext"; // Adjust path if needed
 import { toast } from "react-toastify";
-import { useRef  ,useEffect} from "react";
+import { useRef, useEffect } from "react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +10,7 @@ const Navbar = () => {
   // ──── NEW ──── added for search functionality
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-   const [allUsers, setAllUsers] = useState([]); // This will hold the list of all farmers and firms for search
+  const [allUsers, setAllUsers] = useState([]); // This will hold the list of all farmers and firms for search
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -21,12 +21,13 @@ const Navbar = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Crops", path: "/crops" },
-    {name:"Requests",path:"/allrequests"}
+    { name: "Requests", path: "/allrequests" }
   ];
 
   const farmerLinks = [
     { name: "Listed Crops", path: "/listed-crops" },
-    {name :"Requested-Crops" , path :"/requested-crops"},
+    { name: "Requested-Crops", path: "/requested-crops" },
+    { name: "Quotations", path: "/my-quotations" },
     { name: "Profile", path: "/profile" },
   ];
 
@@ -38,19 +39,19 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path;
   const inputRef = useRef(null);
 
-   // simple filter — shows up to 6 matching results
-  const filteredSuggestions =allUsers
-    .filter(user => 
-      user.name.toLowerCase().startsWith(searchQuery.toLowerCase().trim()) || 
+  // simple filter — shows up to 6 matching results
+  const filteredSuggestions = allUsers
+    .filter(user =>
+      user.name.toLowerCase().startsWith(searchQuery.toLowerCase().trim()) ||
       user.city.toLowerCase().startsWith(searchQuery.toLowerCase().trim()) ||
-       user.state.toLowerCase().startsWith(searchQuery.toLowerCase().trim())
+      user.state.toLowerCase().startsWith(searchQuery.toLowerCase().trim())
 
     )
     .slice(0, 6);
   // ──────────────
-useEffect(() => {
+  useEffect(() => {
     const fetchAllUsers = async () => {
-            try {
+      try {
         const response = await fetch(`${backendApiUrl}/api/users`,   // ← fixed: used environment variable + template literal
           {
             method: "GET",
@@ -59,7 +60,7 @@ useEffect(() => {
         );
 
         const data = await response.json();
-console.log("Fetched users for search:", data); // Debug log
+        console.log("Fetched users for search:", data); // Debug log
         if (response.ok) {
           setAllUsers(data); // expected: array of { id, name, userType, ... }
         } else {
@@ -69,7 +70,7 @@ console.log("Fetched users for search:", data); // Debug log
       } catch (err) {
         console.error("Network error while fetching users:", err);
         setFetchError("Could not connect to server");
-      } 
+      }
     };
 
     fetchAllUsers();
@@ -84,7 +85,7 @@ console.log("Fetched users for search:", data); // Debug log
       });
 
       const data = await response.json();
-console.log("Logout response:", data); // Debug log
+      console.log("Logout response:", data); // Debug log
       if (response.ok) {
         toast.success(data.message || "Logged out successfully");
       } else {
@@ -106,7 +107,7 @@ console.log("Logout response:", data); // Debug log
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center shrink-0">
               <span className="text-emerald-50 text-2xl">🌾</span>
             </div>
             <span className="font-bold text-xl text-gray-900">KrishiConnect</span>
@@ -118,9 +119,8 @@ console.log("Logout response:", data); // Debug log
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-emerald-600 ${
-                  isActive(link.path) ? "text-emerald-600 font-semibold" : "text-gray-600"
-                }`}
+                className={`text-sm font-medium transition-colors hover:text-emerald-600 ${isActive(link.path) ? "text-emerald-600 font-semibold" : "text-gray-600"
+                  }`}
               >
                 {link.name}
               </Link>
@@ -131,9 +131,8 @@ console.log("Logout response:", data); // Debug log
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`text-sm font-medium transition-colors hover:text-emerald-600 ${
-                    isActive(link.path) ? "text-emerald-600 font-semibold" : "text-gray-600"
-                  }`}
+                  className={`text-sm font-medium transition-colors hover:text-emerald-600 ${isActive(link.path) ? "text-emerald-600 font-semibold" : "text-gray-600"
+                    }`}
                 >
                   {link.name}
                 </Link>
@@ -144,16 +143,15 @@ console.log("Logout response:", data); // Debug log
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`text-sm font-medium transition-colors hover:text-emerald-600 ${
-                    isActive(link.path) ? "text-emerald-600 font-semibold" : "text-gray-600"
-                  }`}
+                  className={`text-sm font-medium transition-colors hover:text-emerald-600 ${isActive(link.path) ? "text-emerald-600 font-semibold" : "text-gray-600"
+                    }`}
                 >
                   {link.name}
                 </Link>
               ))}
 
-          {isLoggedIn &&  
-           <div className="relative">
+            {isLoggedIn &&
+              <div className="relative">
                 {/* ──── MODIFIED: added value, onChange, onFocus ──── */}
                 <input
                   ref={inputRef}
@@ -174,28 +172,29 @@ console.log("Logout response:", data); // Debug log
 
                 {/* ──── NEW: suggestion dropdown ──── */}
                 {showSuggestions && (
-                  <div 
+                  <div
                     className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 text-sm"
                   >
                     {filteredSuggestions.length > 0 ? (
                       filteredSuggestions.map((item) => (
-                      <button
-  key={item._id || item.id}
-  type="button"
-  className="w-full px-4 py-2.5 text-left hover:bg-gray-50 transition-colors flex items-center justify-between gap-4"
-  onClick={() => {
-navigate(`/profile/${item.id}?userType=${item.userType}`);
-setSearchQuery("");
-setShowSuggestions(false);}}
->
-  <span className="font-medium text-gray-900 ">
-    {item.name || "Unnamed"}
-  </span>
+                        <button
+                          key={item._id || item.id}
+                          type="button"
+                          className="w-full px-4 py-2.5 text-left hover:bg-gray-50 transition-colors flex items-center justify-between gap-4"
+                          onClick={() => {
+                            navigate(`/profile/${item.id}?userType=${item.userType}`);
+                            setSearchQuery("");
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          <span className="font-medium text-gray-900 ">
+                            {item.name || "Unnamed"}
+                          </span>
 
-  <span className="text-xs text-gray-500 whitespace-nowrap">
-    {item.userType || "user"} • {item.city || "—"}, {item.state || "—"}
-  </span>
-</button>
+                          <span className="text-xs text-gray-500 whitespace-nowrap">
+                            {item.userType || "user"} • {item.city || "—"}, {item.state || "—"}
+                          </span>
+                        </button>
                       ))
                     ) : (
                       <div className="px-4 py-3 text-gray-500 italic">
@@ -206,9 +205,9 @@ setShowSuggestions(false);}}
                 )}
                 {/* ────────────────────────────────────── */}
               </div>
-}
+            }
           </div>
-            
+
 
           {/* Desktop Auth Section */}
           <div className="hidden md:flex items-center gap-4">
@@ -259,11 +258,10 @@ setShowSuggestions(false);}}
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                    isActive(link.path)
+                  className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${isActive(link.path)
                       ? "bg-emerald-50 text-emerald-700"
                       : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                    }`}
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
@@ -276,11 +274,10 @@ setShowSuggestions(false);}}
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                      isActive(link.path)
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${isActive(link.path)
                         ? "bg-emerald-50 text-emerald-700"
                         : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                      }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.name}
@@ -292,11 +289,10 @@ setShowSuggestions(false);}}
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-                      isActive(link.path)
+                    className={`px-4 py-3 rounded-lg text-base font-medium transition-colors ${isActive(link.path)
                         ? "bg-emerald-50 text-emerald-700"
                         : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                      }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.name}

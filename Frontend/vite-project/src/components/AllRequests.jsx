@@ -1,6 +1,7 @@
 // src/pages/AllRequests.jsx
 
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "./Input";
 import { Button } from "./Button";
 import { Card, CardContent } from "./Card"; // assuming CardContent exists; if not, use div with p-5
@@ -29,6 +30,7 @@ import { AuthContext } from "./AuthContext";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || "http://localhost:4003";
 
 const AllRequests = () => {
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,6 +46,10 @@ const AllRequests = () => {
     requirement: "",
     deadline: "",
   });
+  const [showQuotationModal, setShowQuotationModal] = useState(false);
+  const [selectedRequestForQuotation, setSelectedRequestForQuotation] = useState(null);
+  const [quotationRate, setQuotationRate] = useState("");
+  const [submittingQuotation, setSubmittingQuotation] = useState(false);
 
   // ────────────────────────────────────────────────
   // Fetch logic (unchanged except minor error handling polish)
@@ -67,6 +73,7 @@ const AllRequests = () => {
           console.log("Fetched requests:", data.requests);
           const normalized = data.requests.map((req) => ({
             id: req._id,
+            firmOwnerId: req.firmId?._id || null,
             cropName: req.cropname || "Unknown Crop",
             firmName: req.firmId?.CompanyName || "Unknown Firm",
             city: req.firmId?.city || "—",
@@ -132,6 +139,7 @@ const AllRequests = () => {
         setRequests((prev) => [
           {
             id: data.request?._id || Date.now().toString(),
+            firmOwnerId: data.request?.firmId?._id || user?._id || null,
             cropName: data.request?.cropname || formData.cropName,
             firmName: data.request?.firmId?.CompanyName || "Your Firm",
             city: data.request?.firmId?.city || "—",
@@ -148,7 +156,7 @@ const AllRequests = () => {
       } else {
         toast.error(data.error || "Submission failed.");
       }
-    } catch (err) {
+    } catch {
       toast.error("Network error. Please try again.");
     }
   };
@@ -175,7 +183,7 @@ const AllRequests = () => {
       } else {
         toast.error(data.error || "Failed to accept request.");
       }
-    } catch (err) {
+    } catch {
       toast.error("Network error during acceptance.");
     }
   };
@@ -186,6 +194,70 @@ const AllRequests = () => {
       return;
     }
     window.location.href = `tel:${phone}`;
+  };
+
+  const handleViewQuotations = (requestId) => {
+    navigate(`/quotations/${requestId}`);
+  };
+
+  const handleOpenQuotationModal = (req) => {
+    setSelectedRequestForQuotation(req);
+    setQuotationRate("");
+    setShowQuotationModal(true);
+  };
+
+  const handleCloseQuotationModal = () => {
+    setShowQuotationModal(false);
+    setSelectedRequestForQuotation(null);
+    setQuotationRate("");
+  };
+
+  const handleQuotationSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!selectedRequestForQuotation?.id) {
+      toast.error("Request not found.");
+      return;
+    }
+
+    if (!user?._id || user?.userType !== "farmer") {
+      toast.error("Please log in as a farmer to add quotation.");
+      return;
+    }
+
+    const numericRate = Number(quotationRate);
+    if (!numericRate || numericRate <= 0) {
+      toast.error("Please enter a valid rate.");
+      return;
+    }
+
+    try {
+      setSubmittingQuotation(true);
+      const response = await fetch(`${BACKEND_URL}/api/quotation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          rate: numericRate,
+          farmerId: user._id,
+          firmRequestId: selectedRequestForQuotation.id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data?.success) {
+        toast.success("Quotation submitted successfully.");
+        handleCloseQuotationModal();
+      } else {
+        toast.error(data?.message || "Failed to submit quotation.");
+      }
+    } catch (err) {
+      console.error("Quotation submit error:", err);
+      toast.error("Network error while submitting quotation.");
+    } finally {
+      setSubmittingQuotation(false);
+    }
   };
 
   const getStatusBadge = (status) => {
@@ -231,6 +303,11 @@ const AllRequests = () => {
 
   const showAcceptButton = isLoggedIn && user?.userType === "farmer";
   const showCallButton = isLoggedIn;
+  const canViewQuotations = (req) => {
+    if (!isLoggedIn || user?.userType !== "firm") return false;
+    if (!req?.firmOwnerId) return true;
+    return String(req.firmOwnerId) === String(user?._id);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/60">
@@ -373,7 +450,7 @@ const AllRequests = () => {
 
                               <div className="space-y-3.5 text-sm mb-6">
                                 <div className="flex items-center gap-3">
-                                  
+
                                   <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold shrink-0">
                                     {req.firmName?.charAt(0) || "?"}
                                   </div>
@@ -485,13 +562,37 @@ const AllRequests = () => {
                                 </div>
                               </div>
 
-                              {showAcceptButton && (
-                                <Button
-                                  onClick={() => handleAcceptRequest(req.id)}
-                                  className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors"
-                                >
-                                  Accept This Request
-                                </Button>
+                              {(showAcceptButton || canViewQuotations(req)) && (
+                                <div className="space-y-3">
+                                  {showAcceptButton && (
+                                    <Button
+                                      onClick={() => handleOpenQuotationModal(req)}
+                                      className="w-full bg-emerald-600 hover:bg-emerald-700 transition-colors"
+                                    >
+                                      Add Quotation
+                                    </Button>
+                                  )}
+
+                                  {showAcceptButton && (
+                                    <Button
+                                      onClick={() => handleAcceptRequest(req.id)}
+                                      variant="outline"
+                                      className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
+                                    >
+                                      Accept This Request
+                                    </Button>
+                                  )}
+
+                                  {canViewQuotations(req) && (
+                                    <Button
+                                      onClick={() => handleViewQuotations(req.id)}
+                                      variant="outline"
+                                      className="w-full border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                                    >
+                                      View Quotations
+                                    </Button>
+                                  )}
+                                </div>
                               )}
                             </CardContent>
                           </Card>
@@ -566,6 +667,55 @@ const AllRequests = () => {
                   className="flex-1 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
                 >
                   Submit Request
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Quotation Modal */}
+      {showQuotationModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div className="p-6 border-b">
+              <h2 className="text-2xl font-bold text-gray-900">Add Quotation</h2>
+              <p className="text-gray-600 mt-1">
+                Enter your rate for {selectedRequestForQuotation?.cropName || "this request"}.
+              </p>
+            </div>
+
+            <form onSubmit={handleQuotationSubmit} className="p-6 space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Rate (INR)</label>
+                <Input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  value={quotationRate}
+                  onChange={(e) => setQuotationRate(e.target.value)}
+                  placeholder="e.g., 2450"
+                  className="rounded-xl border-gray-200 focus:border-emerald-400 focus:ring-emerald-400"
+                  required
+                />
+              </div>
+
+              <div className="flex gap-4 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 rounded-xl border-gray-300"
+                  onClick={handleCloseQuotationModal}
+                  disabled={submittingQuotation}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 rounded-xl"
+                  disabled={submittingQuotation}
+                >
+                  {submittingQuotation ? "Submitting..." : "Submit Quotation"}
                 </Button>
               </div>
             </form>
